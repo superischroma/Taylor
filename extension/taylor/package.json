@@ -1,0 +1,25 @@
+{
+    "name": "taylor",
+    "displayName": "Taylor",
+    "description": "Syntax highlighting for the Taylor language.",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "taylor",
+            "aliases": ["Taylor"],
+            "extensions": [".ty"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "taylor",
+            "scopeName": "source.ty",
+            "path": "./syntaxes/taylor.tmLanguage.json"
+        }]
+    }
+}

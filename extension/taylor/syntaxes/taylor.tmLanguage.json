@@ -1,0 +1,70 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "taylor",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#constants"
+		},
+		{
+			"include": "#functions"
+		},
+		{
+			"include": "#variables"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [{
+				"begin": "//",
+				"beginCaptures": {
+					"0": {
+						"name": "comment.line.double-slash"
+					}
+				},
+				"end": "\\n",
+				"name": "comment.line.double-slash.taylor"
+			}]
+		},
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.taylor",
+				"match": "\\b(rad|deg)\\b"
+			},
+			{
+				"name": "constant.language.taylor",
+				"match": "sin|cos|tan|csc|sec|cot|sinh|cosh|tanh|csch|sech|coth|arcsin|arccos|arctan|arccsc|arcsec|arccot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|log|lg|ln|exp|det|sqrt"
+			}]
+		},
+		"constants": {
+			"patterns": [
+				{
+					"name": "constant.numeric.taylor",
+					"match": "[0-9.]+"
+				}
+			]
+		},
+		"functions": {
+			"patterns": [
+				{
+					"name": "entity.name.function.taylor",
+					"match": "\\w(?=\\()"
+				}
+			]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"name": "variable.taylor",
+					"match": "\\w"
+				}
+			]
+		}
+	},
+	"scopeName": "source.ty"
+}
