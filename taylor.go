@@ -46,10 +46,6 @@ func main() {
 			files = append(files, arg)
 		}
 	}
-	if len(files) == 0 {
-		err("no input files")
-		return
-	}
 	transcendentals = map[string]Transcendental{
 		"sin":     Transcendental{1, transSin, functionVariant},
 		"cos":     Transcendental{1, transCos, functionVariant},
@@ -88,9 +84,22 @@ func main() {
 		"abs":  Transcendental{1, transAbs, functionVariant},
 		"inc":  Transcendental{1, transInc, functionVariant},
 		"hirt": Transcendental{2, transHirt, functionVariant},
+		"read": Transcendental{0, transRead, functionVariant},
+		"exit": Transcendental{0, transExit, functionVariant},
 	}
-	tokenizerRegExp, _ = regexp.Compile("radians|degrees|sinh|cosh|tanh|csch|sech|coth|sin|cos|tan|csc|sec|cot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|arcsin|arccos|arctan|arccsc|arcsec|arccot|log|lg|ln|exp|det|sqrt|pi|e|rad|deg|abs|inc|hirt|<=|>=|\\\"[^\\\"\\\\\\\\]*(\\\\\\\\.[^\\\"\\\\\\\\]*)*\\\"|[0-9.-]+|\\S")
+	tokenizerRegExp, _ = regexp.Compile("radians|degrees|sinh|cosh|tanh|csch|sech|coth|sin|cos|tan|csc|sec|cot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|arcsin|arccos|arctan|arccsc|arcsec|arccot|log|lg|ln|exp|det|sqrt|pi|exit|e|rad|deg|abs|inc|hirt|read|<=|>=|\\\"[^\\\"\\\\\\\\]*(\\\\\\\\.[^\\\"\\\\\\\\]*)*\\\"|[0-9.-]+|\\S")
 	debug("using tokenizer regex:", tokenizerRegExp.String())
+	if len(files) == 0 {
+		symbols = make(map[string]*Symbol)
+		info("entered line-by-line mode. use the exit function to terminate the program.")
+		for reader := bufio.NewReader(os.Stdin); true; {
+			fmt.Print("> ")
+			line, _ := reader.ReadString('\n')
+			line = line[:len(line)-2]
+			interpretLine(line, -1, true)
+		}
+		return
+	}
 	multi := len(files) > 1
 	for _, filename := range files {
 		symbols = make(map[string]*Symbol)
@@ -119,7 +128,8 @@ func interpret(filename string) (bool, *os.File) {
 	scn := bufio.NewScanner(file)
 	for line := 1; scn.Scan(); line++ {
 		text := scn.Text()
-		if !interpretLine(text, line) {
+		ok, _ := interpretLine(text, line, true)
+		if !ok {
 			return false, file
 		}
 	}
@@ -127,39 +137,43 @@ func interpret(filename string) (bool, *os.File) {
 	return true, nil
 }
 
-func interpretLine(data string, line int) bool {
+func interpretLine(data string, line int, print bool) (bool, string) {
 	comment := strings.Index(data, "//")
 	if comment != -1 {
 		data = data[0:comment]
 	}
 	if len(strings.TrimSpace(data)) == 0 { // blank line
-		return true
+		return true, ""
 	}
 	if isStringLiteral(data) {
-		if data[0] == '"' {
-			fmt.Println(unwrapStringLiteral(data))
-		} else {
-			fmt.Print(unwrapStringLiteral(data))
+		if !print {
+			return true, ""
 		}
-		return true
+		unwrapped := unwrapStringLiteral(data)
+		if data[0] == '"' {
+			fmt.Println(unwrapped)
+		} else {
+			fmt.Print(unwrapped)
+		}
+		return true, unwrapped
 	}
 	iRad := strings.Index(data, "radians")
 	iDeg := strings.Index(data, "degrees")
 	if iRad != -1 {
 		if strings.TrimSpace(data) != "radians" {
 			errLine("the radians directive must be on a line by itself", line)
-			return false
+			return false, ""
 		}
 		trigMode = Radians
-		return true
+		return true, ""
 	}
 	if iDeg != -1 {
 		if strings.TrimSpace(data) != "degrees" {
 			errLine("the degrees directive must be on a line by itself", line)
-			return false
+			return false, ""
 		}
 		trigMode = Degrees
-		return true
+		return true, ""
 	}
 	tokens := tokenizerRegExp.FindAllString(data, -1)
 	for i := 0; i < len(tokens)-1; i++ { // we love implicit multiplication!
@@ -186,14 +200,14 @@ func interpretLine(data string, line int) bool {
 		result = constDefLineResult
 		if len(tokens) == 2 {
 			errLine("expression expected after equal (=) sign", line)
-			return false
+			return false, ""
 		}
 		cName := tokens[0]
 		tokens = tokens[2:]
 		_, constExists := symbols[cName]
 		if constExists {
 			errLine("a constant or function is already declared with the name '"+cName+"'", line)
-			return false
+			return false, ""
 		}
 		symbols[cName] = &Symbol{cName, constantVariant, []*Symbol{}, nil, Deque[string]{}}
 		cSymbol = symbols[cName]
@@ -206,7 +220,7 @@ func interpretLine(data string, line int) bool {
 			result = funcDefLineResult
 			if end+2 >= len(tokens) {
 				errLine("expression expected after equal (=) sign", line)
-				return false
+				return false, ""
 			}
 			tokens = tokens[end+2:]
 			defIt := 0
@@ -214,12 +228,12 @@ func interpretLine(data string, line int) bool {
 			_, funcExists := symbols[fName]
 			if funcExists {
 				errLine("a constant or function is already declared with the name '"+funcDef[defIt]+"'", line)
-				return false
+				return false, ""
 			}
 			defIt++
 			if funcDef[defIt] != "(" {
 				errLine("expected left parenthesis to start function parameter list", line)
-				return false
+				return false, ""
 			}
 			defIt++
 			symbols[fName] = &Symbol{fName, functionVariant, []*Symbol{}, nil, Deque[string]{}}
@@ -228,7 +242,7 @@ func interpretLine(data string, line int) bool {
 				current := funcDef[defIt]
 				if !isAlpha(current) {
 					errLine("a function parameter's name may only contain alphabetical characters", line)
-					return false
+					return false, ""
 				}
 				foundShade, fsExists := symbols[current]
 				var shaded *Symbol = nil
@@ -271,7 +285,7 @@ func interpretLine(data string, line int) bool {
 			}
 			if ops.empty() || *(ops.peek()) != "(" {
 				err("expected left parenthesis")
-				return false
+				return false, ""
 			}
 			ops.pop()
 			if !ops.empty() && isAlpha(*(ops.peek())) {
@@ -285,26 +299,31 @@ func interpretLine(data string, line int) bool {
 	for !ops.empty() {
 		if *(ops.peek()) == "(" {
 			err("unexpected left parenthesis")
-			return false
+			return false, ""
 		}
 		output.push(ops.pop())
 		debug(output.string())
 	}
 	debug(output.string())
 
+	full := ""
 	if result == funcDefLineResult {
 		fSymbol.data = output
 	} else {
-		value, no := resolveExpression(&output, nil, nil, line)
+		value, no, ok := resolveExpression(&output, nil, nil, line)
+		if !ok {
+			return false, ""
+		}
 		if result == constDefLineResult {
 			cSymbol.data = Deque[string]{}
 			cSymbol.data.push(&value)
 		} else {
-			result, _ := strconv.ParseFloat(value, 64)
-			if result > 0 && result <= 0.00001 {
+			result := atof(value)
+			if result >= -0.00001 && result <= 0.00001 {
 				result = 0
 			}
-			if !no {
+			full = ftoa(result)
+			if !no && print {
 				if !math.IsNaN(result) && !math.IsInf(result, 0) {
 					fmt.Println(result)
 				} else {
@@ -328,10 +347,10 @@ func interpretLine(data string, line int) bool {
 	for k := range symbols {
 		debug(k, symbols[k].string())
 	}
-	return true
+	return true, full
 }
 
-func resolveExpression(data *Deque[string], functionChildren *[]*Symbol, operations *Stack[string], line int) (string, bool) {
+func resolveExpression(data *Deque[string], functionChildren *[]*Symbol, operations *Stack[string], line int) (string, bool, bool) {
 	valueTable := make(map[string]string)
 	if functionChildren != nil && operations != nil {
 		for i := len(*functionChildren) - 1; i >= 0; i-- {
@@ -350,7 +369,10 @@ func resolveExpression(data *Deque[string], functionChildren *[]*Symbol, operati
 		trans, transExists := transcendentals[*current]
 		if fSymbolExists {
 			data := symbol.data
-			result, nol := resolveExpression(&data, &(symbol.children), &localOperations, line)
+			result, nol, ok := resolveExpression(&data, &(symbol.children), &localOperations, line)
+			if !ok {
+				return "", false, false
+			}
 			if nol {
 				noOutput = true
 			}
@@ -361,11 +383,14 @@ func resolveExpression(data *Deque[string], functionChildren *[]*Symbol, operati
 				arg := localOperations.pop()
 				if arg == nil {
 					errLine("function "+*current+" expects "+strconv.Itoa(trans.argCount)+" argument(s), got "+strconv.Itoa(i), line)
-					panic("-1")
+					return "", false, false
 				}
 				args = append(args, *arg)
 			}
-			result := trans.operation(args...)
+			result, ok := trans.operation(args)
+			if !ok {
+				return "", false, false
+			}
 			if result == "" {
 				result = "0"
 				noOutput = true
@@ -385,41 +410,41 @@ func resolveExpression(data *Deque[string], functionChildren *[]*Symbol, operati
 			lhs := localOperations.pop()
 			if lhs == nil || rhs == nil {
 				errLine("'"+*current+"' operator expects 2 operands", line)
-				panic("-1")
+				return "", false, false
 			}
 			lhsv, lhsve := strconv.ParseFloat(*lhs, 64)
 			rhsv, rhsve := strconv.ParseFloat(*rhs, 64)
 			if lhsve != nil || rhsve != nil {
 				errLine("'"+*current+"' operator expects 2 operands", line)
-				panic("-1")
+				return "", false, false
 			}
 			value := ""
 			switch *current {
 			case "+":
-				value = strconv.FormatFloat(lhsv+rhsv, 'E', -1, 64)
+				value = ftoa(lhsv + rhsv)
 			case "-":
-				value = strconv.FormatFloat(lhsv-rhsv, 'E', -1, 64)
+				value = ftoa(lhsv - rhsv)
 			case "*":
-				value = strconv.FormatFloat(lhsv*rhsv, 'E', -1, 64)
+				value = ftoa(lhsv * rhsv)
 			case "/":
-				value = strconv.FormatFloat(lhsv/rhsv, 'E', -1, 64)
+				value = ftoa(lhsv / rhsv)
 			case "^":
-				value = strconv.FormatFloat(math.Pow(lhsv, rhsv), 'E', -1, 64)
+				value = ftoa(math.Pow(lhsv, rhsv))
 			default:
 				{
 					errLine("'"+*current+"' operator has not been implemented yet", line)
-					panic("-1")
+					return "", false, false
 				}
 			}
 			localOperations.push(&value)
 		} else {
 			errLine("unknown symbol encountered: "+*current, line)
-			panic("-1")
+			return "", false, false
 		}
 	}
 	if localOperations.empty() {
 		errLine("there was an issue while resolving an expression", line)
-		panic("-1")
+		return "", false, false
 	}
-	return *(localOperations.pop()), noOutput
+	return *(localOperations.pop()), noOutput, true
 }

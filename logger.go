@@ -29,5 +29,9 @@ func err(a ...any) {
 }
 
 func errLine(message string, line int) {
-	log([]any{message}, "error ("+strconv.Itoa(line)+")")
+	lineDenotion := " (" + strconv.Itoa(line) + ")"
+	if line <= 0 {
+		lineDenotion = ""
+	}
+	log([]any{message}, "error"+lineDenotion)
 }

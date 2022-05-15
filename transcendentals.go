@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"math"
+	"os"
+	"strconv"
 )
 
 type Transcendental struct {
 	argCount  int
-	operation func(...string) string
+	operation func([]string) (string, bool)
 	variant   SymbolVariant
 }
 
@@ -26,151 +29,172 @@ func radiansCheck(value float64) float64 {
 	return value
 }
 
-func transSin(values ...string) string {
-	return ftoa(math.Sin(radiansCheck(atof(values[0]))))
+func transSin(values []string) (string, bool) {
+	return ftoa(math.Sin(radiansCheck(atof(values[0])))), true
 }
 
-func transCos(values ...string) string {
-	return ftoa(math.Cos(radiansCheck(atof(values[0]))))
+func transCos(values []string) (string, bool) {
+	return ftoa(math.Cos(radiansCheck(atof(values[0])))), true
 }
 
-func transTan(values ...string) string {
-	return ftoa(math.Tan(radiansCheck(atof(values[0]))))
+func transTan(values []string) (string, bool) {
+	return ftoa(math.Tan(radiansCheck(atof(values[0])))), true
 }
 
-func transCsc(values ...string) string {
-	return ftoa(1.0 / math.Sin(radiansCheck(atof(values[0]))))
+func transCsc(values []string) (string, bool) {
+	return ftoa(1.0 / math.Sin(radiansCheck(atof(values[0])))), true
 }
 
-func transSec(values ...string) string {
-	return ftoa(1.0 / math.Cos(radiansCheck(atof(values[0]))))
+func transSec(values []string) (string, bool) {
+	return ftoa(1.0 / math.Cos(radiansCheck(atof(values[0])))), true
 }
 
-func transCot(values ...string) string {
-	return ftoa(1.0 / math.Tan(radiansCheck(atof(values[0]))))
+func transCot(values []string) (string, bool) {
+	return ftoa(1.0 / math.Tan(radiansCheck(atof(values[0])))), true
 }
 
-func transSinh(values ...string) string {
-	return ftoa(math.Sinh(radiansCheck(atof(values[0]))))
+func transSinh(values []string) (string, bool) {
+	return ftoa(math.Sinh(radiansCheck(atof(values[0])))), true
 }
 
-func transCosh(values ...string) string {
-	return ftoa(math.Cosh(radiansCheck(atof(values[0]))))
+func transCosh(values []string) (string, bool) {
+	return ftoa(math.Cosh(radiansCheck(atof(values[0])))), true
 }
 
-func transTanh(values ...string) string {
-	return ftoa(math.Tanh(radiansCheck(atof(values[0]))))
+func transTanh(values []string) (string, bool) {
+	return ftoa(math.Tanh(radiansCheck(atof(values[0])))), true
 }
 
-func transCsch(values ...string) string {
-	return ftoa(1 / math.Sinh(radiansCheck(atof(values[0]))))
+func transCsch(values []string) (string, bool) {
+	return ftoa(1 / math.Sinh(radiansCheck(atof(values[0])))), true
 }
 
-func transSech(values ...string) string {
-	return ftoa(1 / math.Cosh(radiansCheck(atof(values[0]))))
+func transSech(values []string) (string, bool) {
+	return ftoa(1 / math.Cosh(radiansCheck(atof(values[0])))), true
 }
 
-func transCoth(values ...string) string {
-	return ftoa(1 / math.Tanh(radiansCheck(atof(values[0]))))
+func transCoth(values []string) (string, bool) {
+	return ftoa(1 / math.Tanh(radiansCheck(atof(values[0])))), true
 }
 
-func transArcsin(values ...string) string {
-	return ftoa(math.Asin(radiansCheck(atof(values[0]))))
+func transArcsin(values []string) (string, bool) {
+	return ftoa(math.Asin(radiansCheck(atof(values[0])))), true
 }
 
-func transArccos(values ...string) string {
-	return ftoa(math.Acos(radiansCheck(atof(values[0]))))
+func transArccos(values []string) (string, bool) {
+	return ftoa(math.Acos(radiansCheck(atof(values[0])))), true
 }
 
-func transArctan(values ...string) string {
-	return ftoa(math.Atan(radiansCheck(atof(values[0]))))
+func transArctan(values []string) (string, bool) {
+	return ftoa(math.Atan(radiansCheck(atof(values[0])))), true
 }
 
-func transArccsc(values ...string) string {
-	return ftoa(1 / math.Asin(radiansCheck(atof(values[0]))))
+func transArccsc(values []string) (string, bool) {
+	return ftoa(1 / math.Asin(radiansCheck(atof(values[0])))), true
 }
 
-func transArcsec(values ...string) string {
-	return ftoa(1 / math.Acos(radiansCheck(atof(values[0]))))
+func transArcsec(values []string) (string, bool) {
+	return ftoa(1 / math.Acos(radiansCheck(atof(values[0])))), true
 }
 
-func transArccot(values ...string) string {
-	return ftoa(1 / math.Atan(radiansCheck(atof(values[0]))))
+func transArccot(values []string) (string, bool) {
+	return ftoa(1 / math.Atan(radiansCheck(atof(values[0])))), true
 }
 
-func transArcsinh(values ...string) string {
-	return ftoa(math.Asinh(radiansCheck(atof(values[0]))))
+func transArcsinh(values []string) (string, bool) {
+	return ftoa(math.Asinh(radiansCheck(atof(values[0])))), true
 }
 
-func transArccosh(values ...string) string {
-	return ftoa(math.Acosh(radiansCheck(atof(values[0]))))
+func transArccosh(values []string) (string, bool) {
+	return ftoa(math.Acosh(radiansCheck(atof(values[0])))), true
 }
 
-func transArctanh(values ...string) string {
-	return ftoa(math.Atanh(radiansCheck(atof(values[0]))))
+func transArctanh(values []string) (string, bool) {
+	return ftoa(math.Atanh(radiansCheck(atof(values[0])))), true
 }
 
-func transArccsch(values ...string) string {
-	return ftoa(1 / math.Asinh(radiansCheck(atof(values[0]))))
+func transArccsch(values []string) (string, bool) {
+	return ftoa(1 / math.Asinh(radiansCheck(atof(values[0])))), true
 }
 
-func transArcsech(values ...string) string {
-	return ftoa(1 / math.Acosh(radiansCheck(atof(values[0]))))
+func transArcsech(values []string) (string, bool) {
+	return ftoa(1 / math.Acosh(radiansCheck(atof(values[0])))), true
 }
 
-func transArccoth(values ...string) string {
-	return ftoa(1 / math.Atanh(radiansCheck(atof(values[0]))))
+func transArccoth(values []string) (string, bool) {
+	return ftoa(1 / math.Atanh(radiansCheck(atof(values[0])))), true
 }
 
-func transLog(values ...string) string {
-	return ftoa(math.Log10(atof(values[1])) / math.Log10(atof(values[0])))
+func transLog(values []string) (string, bool) {
+	return ftoa(math.Log10(atof(values[1])) / math.Log10(atof(values[0]))), true
 }
 
-func transLg(values ...string) string {
-	return ftoa(math.Log10(atof(values[0])))
+func transLg(values []string) (string, bool) {
+	return ftoa(math.Log10(atof(values[0]))), true
 }
 
-func transLn(values ...string) string {
-	return ftoa(math.Log(atof(values[0])))
+func transLn(values []string) (string, bool) {
+	return ftoa(math.Log(atof(values[0]))), true
 }
 
-func transExp(values ...string) string {
-	return ftoa(math.Exp(atof(values[0])))
+func transExp(values []string) (string, bool) {
+	return ftoa(math.Exp(atof(values[0]))), true
 }
 
-func transSqrt(values ...string) string {
-	return ftoa(math.Sqrt(atof(values[0])))
+func transSqrt(values []string) (string, bool) {
+	return ftoa(math.Sqrt(atof(values[0]))), true
 }
 
-func transPi(values ...string) string {
-	return ftoa(math.Pi)
+func transPi(values []string) (string, bool) {
+	return ftoa(math.Pi), true
 }
 
-func transE(values ...string) string {
-	return ftoa(math.E)
+func transE(values []string) (string, bool) {
+	return ftoa(math.E), true
 }
 
-func transRad(values ...string) string {
-	return ftoa((atof(values[0]) * math.Pi) / 180.0)
+func transRad(values []string) (string, bool) {
+	return ftoa((atof(values[0]) * math.Pi) / 180.0), true
 }
 
-func transDeg(values ...string) string {
-	return ftoa((180.0 * atof(values[0])) / math.Pi)
+func transDeg(values []string) (string, bool) {
+	return ftoa((180.0 * atof(values[0])) / math.Pi), true
 }
 
-func transAbs(values ...string) string {
-	return ftoa(math.Abs(atof(values[0])))
+func transAbs(values []string) (string, bool) {
+	return ftoa(math.Abs(atof(values[0]))), true
 }
 
-func transInc(values ...string) string {
+func transInc(values []string) (string, bool) {
 	filename := values[0]
 	ok, _ := interpret(filename)
 	if !ok {
-		panic(-1)
+		return "", false
 	}
-	return ""
+	return "", true
 }
 
-func transHirt(values ...string) string {
-	return ftoa(math.Pow(atof(values[1]), 1.0/atof(values[0])))
+func transHirt(values []string) (string, bool) {
+	return ftoa(math.Pow(atof(values[1]), 1.0/atof(values[0]))), true
+}
+
+func transRead(values []string) (string, bool) {
+	reader := bufio.NewReader(os.Stdin)
+	value, _ := reader.ReadString('\n')
+	value = value[:len(value)-2] // remove irrelevant characters
+	ok, fvalue := interpretLine(value, -1, false)
+	if !ok {
+		return "", false
+	}
+	_, e := strconv.ParseFloat(fvalue, 64)
+	if e != nil {
+		err("user-generated input is not a number")
+		return "", false
+	}
+	return fvalue, true
+}
+
+func transExit(values []string) (string, bool) {
+	os.Exit(0)
+	return "", true
 }

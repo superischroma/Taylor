@@ -1,1 +1,9 @@
--3/0
+"trig function calculator"
+'enter value for x: '
+x = read()
+'sin(x): '
+sin(x)
+'cos(x): '
+cos(x)
+'tan(x): '
+tan(x)

@@ -41,7 +41,7 @@
 			},
 			{
 				"name": "constant.language.taylor",
-				"match": "sinh|cosh|tanh|csch|sech|coth|sin|cos|tan|csc|sec|cot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|arcsin|arccos|arctan|arccsc|arcsec|arccot|log|lg|ln|exp|det|sqrt|pi|e|rad|deg|abs|inc|hirt"
+				"match": "sinh|cosh|tanh|csch|sech|coth|sin|cos|tan|csc|sec|cot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|arcsin|arccos|arctan|arccsc|arcsec|arccot|log|lg|ln|exp|det|sqrt|pi|e|rad|deg|abs|inc|hirt|read|exit"
 			}]
 		},
 		"strings": {

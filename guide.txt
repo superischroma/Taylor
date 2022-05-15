@@ -32,3 +32,4 @@ deg(r): Converts angle r in radians into degrees
 abs(x): Calculates the absolute value of x
 inc(path): Includes the file located at path into this file
 hirt(x, n): Calculates the higher-order nth root of x
+read: Parses input from the user and uses it as a value
