@@ -90,6 +90,10 @@ func (deque *Deque[T]) length() int {
 	return deque.size
 }
 
+func (deque *Deque[T]) empty() bool {
+	return deque.size == 0
+}
+
 func (deque *Deque[T]) string() string {
 	str := strings.Builder{}
 	str.WriteString("[")

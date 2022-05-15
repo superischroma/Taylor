@@ -1,5 +1,7 @@
 package main
 
+import "strconv"
+
 func checkError(e error) {
 	if e != nil {
 		panic(e)
@@ -8,7 +10,7 @@ func checkError(e error) {
 
 func isNumeric(str string) bool {
 	for _, r := range str {
-		if (r < '0' || r > '9') && r != '.' {
+		if (r < '0' || r > '9') && r != '.' && r != '-' {
 			return false
 		}
 	}
@@ -25,12 +27,22 @@ func isAlpha(str string) bool {
 }
 
 func isOperator(str string) bool {
-	for k := range operators {
-		if k == str {
-			return true
-		}
+	_, exists := operators[str]
+	return exists
+}
+
+func isStringLiteral(str string) bool {
+	return len(str) >= 2 && (str[0] == '"' && str[len(str)-1] == '"') || (str[0] == '\'' && str[len(str)-1] == '\'')
+}
+
+func unwrapStringLiteral(str string) string {
+	if !isStringLiteral(str) {
+		return str
 	}
-	return false
+	if len(str) == 2 {
+		return ""
+	}
+	return str[1 : len(str)-1]
 }
 
 func indexOfSA(element string, array []string, startIndex int) int {
@@ -40,4 +52,13 @@ func indexOfSA(element string, array []string, startIndex int) int {
 		}
 	}
 	return -1
+}
+
+func ftoa(value float64) string {
+	return strconv.FormatFloat(value, 'E', -1, 64)
+}
+
+func atof(str string) float64 {
+	value, _ := strconv.ParseFloat(str, 64)
+	return value
 }

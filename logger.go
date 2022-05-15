@@ -5,26 +5,29 @@ import (
 	"strconv"
 )
 
-func log(message string, state string) {
-	fmt.Printf("taylor: %s: %s\n", state, message)
+func log(a []any, state string) {
+	a = append([]any{"taylor: " + state + ":"}, a...)
+	fmt.Println(a...)
 }
 
-func debug(message string) {
-	log(message, "debug")
+func debug(a ...any) {
+	if debugMode {
+		log(a, "debug")
+	}
 }
 
-func info(message string) {
-	log(message, "info")
+func info(a ...any) {
+	log(a, "info")
 }
 
-func warn(message string) {
-	log(message, "warn")
+func warn(a ...any) {
+	log(a, "warn")
 }
 
-func err(message string) {
-	log(message, "error")
+func err(a ...any) {
+	log(a, "error")
 }
 
-func lineError(message string, line int) {
-	log(message, "error ("+strconv.Itoa(line)+")")
+func errLine(message string, line int) {
+	log([]any{message}, "error ("+strconv.Itoa(line)+")")
 }

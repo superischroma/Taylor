@@ -9,6 +9,9 @@
 			"include": "#keywords"
 		},
 		{
+			"include": "#strings"
+		},
+		{
 			"include": "#constants"
 		},
 		{
@@ -34,12 +37,26 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.taylor",
-				"match": "\\b(rad|deg)\\b"
+				"match": "\\b(radians|degrees)\\b"
 			},
 			{
 				"name": "constant.language.taylor",
-				"match": "sin|cos|tan|csc|sec|cot|sinh|cosh|tanh|csch|sech|coth|arcsin|arccos|arctan|arccsc|arcsec|arccot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|log|lg|ln|exp|det|sqrt"
+				"match": "sinh|cosh|tanh|csch|sech|coth|sin|cos|tan|csc|sec|cot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|arcsin|arccos|arctan|arccsc|arcsec|arccot|log|lg|ln|exp|det|sqrt|pi|e|rad|deg|abs|inc|hirt"
 			}]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.taylor",
+					"begin": "\"",
+					"end": "\""
+				},
+				{
+					"name": "string.quoted.single.taylor",
+					"begin": "'",
+					"end": "'"
+				}
+			]
 		},
 		"constants": {
 			"patterns": [

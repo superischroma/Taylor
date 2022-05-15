@@ -1,0 +1,34 @@
+-- RADIAN AND DEGREE MODE --
+You may switch between radian and degree mode for trigonometric functions by typing on a single line:
+
+radians
+
+or
+
+degrees
+
+These modes can be accessed without toggling by using the rad and deg functions
+
+-- TEXT TO SCREEN --
+You can print out to the screen by surrounding text in double or single quotes on its own line.
+Single quotes will not create a newline while double quotes will.
+
+-- TRANSCENDENTALS --
+There are a decent amount of pre-defined functions and constants that are provided by default.
+
+sin(angle): Calculates the sine value of the angle provided in the current calculator mode
+cos(angle): Calculates the cosine value of the angle provided in the current calculator mode
+tan(angle): Calculates the tangent value of the angle provided in the current calculator mode
+...
+log(x, b): Calculates the base-b logarithm of x
+lg(x): Calculates the base-10 logarithm of x
+ln(x): Calculates the natural (base-e) logarithm of x
+exp(x): Calculates e^x
+sqrt(x): Calculates the square root of x
+pi: The ratio of the circumstance of a circle to its diameter
+e: The natural constant
+rad(d): Converts angle d in degrees into radians
+deg(r): Converts angle r in radians into degrees
+abs(x): Calculates the absolute value of x
+inc(path): Includes the file located at path into this file
+hirt(x, n): Calculates the higher-order nth root of x
