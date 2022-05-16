@@ -37,7 +37,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.taylor",
-				"match": "\\b(radians|degrees)\\b"
+				"match": "(^|\\s)(:radians|:degrees|:delete|:if|:break|:loop)\\b"
 			},
 			{
 				"name": "constant.language.taylor",

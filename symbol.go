@@ -6,11 +6,15 @@ import (
 )
 
 type SymbolVariant int
+type ScopeVariant int
 
 const (
 	constantVariant          SymbolVariant = 0
 	functionVariant          SymbolVariant = 1
 	functionParameterVariant SymbolVariant = 2
+
+	ifVariant   ScopeVariant = 0
+	loopVariant ScopeVariant = 1
 )
 
 type Symbol struct {
@@ -19,6 +23,12 @@ type Symbol struct {
 	children []*Symbol
 	shaded   *Symbol
 	data     Deque[string]
+}
+
+type Scope struct {
+	scope   *Scope
+	variant ScopeVariant
+	data    []string
 }
 
 func (symbol *Symbol) string() string {

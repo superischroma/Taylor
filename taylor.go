@@ -21,20 +21,24 @@ const (
 var debugMode = false
 
 var operators = map[string]int{
-	"=":  0,
-	"<":  0,
-	">":  0,
-	"<=": 0,
-	">=": 0,
-	"+":  1,
-	"-":  1,
-	"*":  2,
-	"/":  2,
-	"^":  3,
+	"|":  0,
+	"&":  1,
+	"=":  2,
+	"<":  2,
+	">":  2,
+	"<=": 2,
+	">=": 2,
+	"+":  3,
+	"-":  3,
+	"*":  4,
+	"/":  4,
+	"^":  5,
 }
 
 var tokenizerRegExp *regexp.Regexp
 var symbols map[string]*Symbol
+var scope *Scope = nil
+var execute = true
 
 func main() {
 	files := []string{}
@@ -47,47 +51,47 @@ func main() {
 		}
 	}
 	transcendentals = map[string]Transcendental{
-		"sin":     Transcendental{1, transSin, functionVariant},
-		"cos":     Transcendental{1, transCos, functionVariant},
-		"tan":     Transcendental{1, transTan, functionVariant},
-		"csc":     Transcendental{1, transCsc, functionVariant},
-		"sec":     Transcendental{1, transSec, functionVariant},
-		"cot":     Transcendental{1, transCot, functionVariant},
-		"sinh":    Transcendental{1, transSinh, functionVariant},
-		"cosh":    Transcendental{1, transCosh, functionVariant},
-		"tanh":    Transcendental{1, transTanh, functionVariant},
-		"csch":    Transcendental{1, transCsch, functionVariant},
-		"sech":    Transcendental{1, transSech, functionVariant},
-		"coth":    Transcendental{1, transCoth, functionVariant},
-		"arcsin":  Transcendental{1, transArcsin, functionVariant},
-		"arccos":  Transcendental{1, transArccos, functionVariant},
-		"arctan":  Transcendental{1, transArctan, functionVariant},
-		"arccsc":  Transcendental{1, transArccsc, functionVariant},
-		"arcsec":  Transcendental{1, transArcsec, functionVariant},
-		"arccot":  Transcendental{1, transArccot, functionVariant},
-		"arcsinh": Transcendental{1, transArcsinh, functionVariant},
-		"arccosh": Transcendental{1, transArccosh, functionVariant},
-		"arctanh": Transcendental{1, transArctanh, functionVariant},
-		"arccsch": Transcendental{1, transArccsch, functionVariant},
-		"arcsech": Transcendental{1, transArcsech, functionVariant},
-		"arccoth": Transcendental{1, transArccoth, functionVariant},
-		"log":     Transcendental{2, transLog, functionVariant},
-		"lg":      Transcendental{1, transLg, functionVariant},
-		"ln":      Transcendental{1, transLn, functionVariant},
-		"exp":     Transcendental{1, transExp, functionVariant},
+		"sin":     {1, transSin, functionVariant},
+		"cos":     {1, transCos, functionVariant},
+		"tan":     {1, transTan, functionVariant},
+		"csc":     {1, transCsc, functionVariant},
+		"sec":     {1, transSec, functionVariant},
+		"cot":     {1, transCot, functionVariant},
+		"sinh":    {1, transSinh, functionVariant},
+		"cosh":    {1, transCosh, functionVariant},
+		"tanh":    {1, transTanh, functionVariant},
+		"csch":    {1, transCsch, functionVariant},
+		"sech":    {1, transSech, functionVariant},
+		"coth":    {1, transCoth, functionVariant},
+		"arcsin":  {1, transArcsin, functionVariant},
+		"arccos":  {1, transArccos, functionVariant},
+		"arctan":  {1, transArctan, functionVariant},
+		"arccsc":  {1, transArccsc, functionVariant},
+		"arcsec":  {1, transArcsec, functionVariant},
+		"arccot":  {1, transArccot, functionVariant},
+		"arcsinh": {1, transArcsinh, functionVariant},
+		"arccosh": {1, transArccosh, functionVariant},
+		"arctanh": {1, transArctanh, functionVariant},
+		"arccsch": {1, transArccsch, functionVariant},
+		"arcsech": {1, transArcsech, functionVariant},
+		"arccoth": {1, transArccoth, functionVariant},
+		"log":     {2, transLog, functionVariant},
+		"lg":      {1, transLg, functionVariant},
+		"ln":      {1, transLn, functionVariant},
+		"exp":     {1, transExp, functionVariant},
 		// determinant when?
-		"sqrt": Transcendental{1, transSqrt, functionVariant},
-		"pi":   Transcendental{0, transPi, constantVariant},
-		"e":    Transcendental{0, transE, constantVariant},
-		"rad":  Transcendental{1, transRad, functionVariant},
-		"deg":  Transcendental{1, transDeg, functionVariant},
-		"abs":  Transcendental{1, transAbs, functionVariant},
-		"inc":  Transcendental{1, transInc, functionVariant},
-		"hirt": Transcendental{2, transHirt, functionVariant},
-		"read": Transcendental{0, transRead, functionVariant},
-		"exit": Transcendental{0, transExit, functionVariant},
+		"sqrt": {1, transSqrt, functionVariant},
+		"pi":   {0, transPi, constantVariant},
+		"e":    {0, transE, constantVariant},
+		"rad":  {1, transRad, functionVariant},
+		"deg":  {1, transDeg, functionVariant},
+		"abs":  {1, transAbs, functionVariant},
+		"inc":  {1, transInc, functionVariant},
+		"hirt": {2, transHirt, functionVariant},
+		"read": {0, transRead, functionVariant},
+		"exit": {0, transExit, functionVariant},
 	}
-	tokenizerRegExp, _ = regexp.Compile("radians|degrees|sinh|cosh|tanh|csch|sech|coth|sin|cos|tan|csc|sec|cot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|arcsin|arccos|arctan|arccsc|arcsec|arccot|log|lg|ln|exp|det|sqrt|pi|exit|e|rad|deg|abs|inc|hirt|read|<=|>=|\\\"[^\\\"\\\\\\\\]*(\\\\\\\\.[^\\\"\\\\\\\\]*)*\\\"|[0-9.-]+|\\S")
+	tokenizerRegExp, _ = regexp.Compile("radians|degrees|sinh|cosh|tanh|csch|sech|coth|sin|cos|tan|csc|sec|cot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|arcsin|arccos|arctan|arccsc|arcsec|arccot|log|lg|ln|exp|det|sqrt|pi|exit|e|rad|deg|abs|inc|hirt|read|<=|>=|<|>|=|\\\"[^\\\"\\\\\\\\]*(\\\\\\\\.[^\\\"\\\\\\\\]*)*\\\"|[-.0-9]+|\\S")
 	debug("using tokenizer regex:", tokenizerRegExp.String())
 	if len(files) == 0 {
 		symbols = make(map[string]*Symbol)
@@ -142,38 +146,96 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 	if comment != -1 {
 		data = data[0:comment]
 	}
-	if len(strings.TrimSpace(data)) == 0 { // blank line
+	trimmed := strings.TrimSpace(data)
+	if len(trimmed) == 0 { // blank line
 		return true, ""
 	}
-	if isStringLiteral(data) {
+	if !execute && print && !strings.HasPrefix(trimmed, ":break") && !strings.HasPrefix(trimmed, ":if") {
+		return true, ""
+	}
+	if isStringLiteral(trimmed) {
 		if !print {
 			return true, ""
 		}
-		unwrapped := unwrapStringLiteral(data)
-		if data[0] == '"' {
+		unwrapped := unwrapStringLiteral(trimmed)
+		if trimmed[0] == '"' {
 			fmt.Println(unwrapped)
 		} else {
 			fmt.Print(unwrapped)
 		}
 		return true, unwrapped
 	}
-	iRad := strings.Index(data, "radians")
-	iDeg := strings.Index(data, "degrees")
-	if iRad != -1 {
-		if strings.TrimSpace(data) != "radians" {
-			errLine("the radians directive must be on a line by itself", line)
-			return false, ""
+	if strings.HasPrefix(trimmed, ":") { // directive
+		brokenData := strings.Split(trimmed, " ")
+		directive := strings.TrimSpace(brokenData[0][1:])
+		args := []string{}
+		if len(brokenData) >= 2 {
+			args = brokenData[1:]
 		}
-		trigMode = Radians
-		return true, ""
-	}
-	if iDeg != -1 {
-		if strings.TrimSpace(data) != "degrees" {
-			errLine("the degrees directive must be on a line by itself", line)
-			return false, ""
+		switch directive {
+		case "radians":
+			{
+				if len(args) != 0 {
+					errLine("directive radians takes 0 arguments", line)
+					return false, ""
+				}
+				trigMode = Radians
+				return true, ""
+			}
+		case "degrees":
+			{
+				if len(args) != 0 {
+					errLine("directive degrees takes 0 arguments", line)
+					return false, ""
+				}
+				trigMode = Degrees
+				return true, ""
+			}
+		case "delete":
+			{
+				if len(args) != 1 {
+					errLine("directive delete takes 1 argument", line)
+					return false, ""
+				}
+				delete(symbols, args[0])
+				return true, ""
+			}
+		case "if":
+			{
+				if !execute {
+					scope = &Scope{scope, ifVariant, []string{}}
+					return true, ""
+				}
+				if len(args) == 0 {
+					errLine("directive if takes an expression as an argument", line)
+					return false, ""
+				}
+				ok, result := interpretLine(strings.Join(args, " "), line, false)
+				if !ok {
+					return false, ""
+				}
+				scope = &Scope{scope, ifVariant, []string{}}
+				if atof(result) == 0 {
+					execute = false
+				}
+				return true, ""
+			}
+		case "break":
+			{
+				if scope == nil {
+					errLine("nothing to break out of", line)
+					return false, ""
+				}
+				execute = true
+				scope = scope.scope
+				return true, ""
+			}
+		default:
+			{
+				errLine("unknown directive", line)
+				return false, ""
+			}
 		}
-		trigMode = Degrees
-		return true, ""
 	}
 	tokens := tokenizerRegExp.FindAllString(data, -1)
 	for i := 0; i < len(tokens)-1; i++ { // we love implicit multiplication!
@@ -196,7 +258,7 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 	var fSymbol *Symbol = nil
 	var cSymbol *Symbol = nil
 	debug(strconv.Itoa(int(result)))
-	if len(tokens) >= 2 && isAlpha(tokens[0]) && tokens[1] == "=" {
+	if len(tokens) >= 2 && isAlpha(tokens[0]) && tokens[1] == "=" && print {
 		result = constDefLineResult
 		if len(tokens) == 2 {
 			errLine("expression expected after equal (=) sign", line)
@@ -205,11 +267,9 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 		cName := tokens[0]
 		tokens = tokens[2:]
 		_, constExists := symbols[cName]
-		if constExists {
-			errLine("a constant or function is already declared with the name '"+cName+"'", line)
-			return false, ""
+		if !constExists {
+			symbols[cName] = &Symbol{cName, constantVariant, []*Symbol{}, nil, Deque[string]{}}
 		}
-		symbols[cName] = &Symbol{cName, constantVariant, []*Symbol{}, nil, Deque[string]{}}
 		cSymbol = symbols[cName]
 	}
 	if len(tokens) >= 4 && isAlpha(tokens[0]) && tokens[1] == "(" {
@@ -350,11 +410,16 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 	return true, full
 }
 
-func resolveExpression(data *Deque[string], functionChildren *[]*Symbol, operations *Stack[string], line int) (string, bool, bool) {
+func resolveExpression(data *Deque[string], function *Symbol, operations *Stack[string], line int) (string, bool, bool) {
 	valueTable := make(map[string]string)
-	if functionChildren != nil && operations != nil {
-		for i := len(*functionChildren) - 1; i >= 0; i-- {
-			valueTable[(*functionChildren)[i].name] = *(operations.pop())
+	if function != nil && operations != nil {
+		for i := len(function.children) - 1; i >= 0; i-- {
+			value := operations.pop()
+			if value == nil {
+				errLine("function "+function.name+" expects "+strconv.Itoa(len(function.children))+" argument(s), got "+strconv.Itoa(len(function.children)-i-1), line)
+				return "", false, false
+			}
+			valueTable[function.children[i].name] = *value
 		}
 	}
 	localOperations := Stack[string]{}
@@ -369,7 +434,7 @@ func resolveExpression(data *Deque[string], functionChildren *[]*Symbol, operati
 		trans, transExists := transcendentals[*current]
 		if fSymbolExists {
 			data := symbol.data
-			result, nol, ok := resolveExpression(&data, &(symbol.children), &localOperations, line)
+			result, nol, ok := resolveExpression(&data, symbol, &localOperations, line)
 			if !ok {
 				return "", false, false
 			}
@@ -420,6 +485,20 @@ func resolveExpression(data *Deque[string], functionChildren *[]*Symbol, operati
 			}
 			value := ""
 			switch *current {
+			case "|":
+				value = btois(itob(lhsv) || itob(rhsv))
+			case "&":
+				value = btois(itob(lhsv) && itob(rhsv))
+			case "=":
+				value = btois(lhsv == rhsv)
+			case "<":
+				value = btois(lhsv < rhsv)
+			case ">":
+				value = btois(lhsv > rhsv)
+			case "<=":
+				value = btois(lhsv <= rhsv)
+			case ">=":
+				value = btois(lhsv >= rhsv)
 			case "+":
 				value = ftoa(lhsv + rhsv)
 			case "-":

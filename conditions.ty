@@ -1,0 +1,6 @@
+'enter a value for x: '
+x = read()
+:if x >= 5 & x <= 8
+    "between 5 and 8"
+:break
+"finished"

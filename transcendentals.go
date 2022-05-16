@@ -23,7 +23,7 @@ var trigMode = Radians
 var transcendentals map[string]Transcendental
 
 func radiansCheck(value float64) float64 {
-	if trigMode == Degrees {
+	if trigMode {
 		return (value * math.Pi) / 180
 	}
 	return value

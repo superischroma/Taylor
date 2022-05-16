@@ -2,13 +2,10 @@ package main
 
 import "strconv"
 
-func checkError(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
 func isNumeric(str string) bool {
+	if str == "-" {
+		return false
+	}
 	for _, r := range str {
 		if (r < '0' || r > '9') && r != '.' && r != '-' {
 			return false
@@ -61,4 +58,15 @@ func ftoa(value float64) string {
 func atof(str string) float64 {
 	value, _ := strconv.ParseFloat(str, 64)
 	return value
+}
+
+func btois(b bool) string {
+	if b {
+		return "1"
+	}
+	return "0"
+}
+
+func itob(f float64) bool {
+	return f != 0
 }
