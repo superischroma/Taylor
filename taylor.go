@@ -33,6 +33,7 @@ var operators = map[string]int{
 	"*":  4,
 	"/":  4,
 	"^":  5,
+	"'":  6,
 }
 
 var tokenizerRegExp *regexp.Regexp
@@ -51,45 +52,45 @@ func main() {
 		}
 	}
 	transcendentals = map[string]Transcendental{
-		"sin":     {1, transSin, functionVariant},
-		"cos":     {1, transCos, functionVariant},
-		"tan":     {1, transTan, functionVariant},
-		"csc":     {1, transCsc, functionVariant},
-		"sec":     {1, transSec, functionVariant},
-		"cot":     {1, transCot, functionVariant},
-		"sinh":    {1, transSinh, functionVariant},
-		"cosh":    {1, transCosh, functionVariant},
-		"tanh":    {1, transTanh, functionVariant},
-		"csch":    {1, transCsch, functionVariant},
-		"sech":    {1, transSech, functionVariant},
-		"coth":    {1, transCoth, functionVariant},
-		"arcsin":  {1, transArcsin, functionVariant},
-		"arccos":  {1, transArccos, functionVariant},
-		"arctan":  {1, transArctan, functionVariant},
-		"arccsc":  {1, transArccsc, functionVariant},
-		"arcsec":  {1, transArcsec, functionVariant},
-		"arccot":  {1, transArccot, functionVariant},
-		"arcsinh": {1, transArcsinh, functionVariant},
-		"arccosh": {1, transArccosh, functionVariant},
-		"arctanh": {1, transArctanh, functionVariant},
-		"arccsch": {1, transArccsch, functionVariant},
-		"arcsech": {1, transArcsech, functionVariant},
-		"arccoth": {1, transArccoth, functionVariant},
-		"log":     {2, transLog, functionVariant},
-		"lg":      {1, transLg, functionVariant},
-		"ln":      {1, transLn, functionVariant},
-		"exp":     {1, transExp, functionVariant},
+		"sin":     {[]string{"theta"}, "calculate the value of sine at the angle provided", transSin, functionVariant},
+		"cos":     {[]string{"theta"}, "calculate the value of cosine at the angle provided", transCos, functionVariant},
+		"tan":     {[]string{"theta"}, "calculate the value of tangent at the angle provided", transTan, functionVariant},
+		"csc":     {[]string{"theta"}, "calculate the value of sine's reciprocal at the angle provided", transCsc, functionVariant},
+		"sec":     {[]string{"theta"}, "calculate the value of cosine's reciprocal at the angle provided", transSec, functionVariant},
+		"cot":     {[]string{"theta"}, "calculate the value of tangent's reciprocal at the angle provided", transCot, functionVariant},
+		"sinh":    {[]string{"theta"}, "calculate the value of hyperbolic sine at the angle provided", transSinh, functionVariant},
+		"cosh":    {[]string{"theta"}, "calculate the value of hyperbolic cosine at the angle provided", transCosh, functionVariant},
+		"tanh":    {[]string{"theta"}, "calculate the value of hyperbolic tangent at the angle provided", transTanh, functionVariant},
+		"csch":    {[]string{"theta"}, "calculate the value of hyperbolic sine's reciprocal at the angle provided", transCsch, functionVariant},
+		"sech":    {[]string{"theta"}, "calculate the value of hyperbolic cosine's reciprocal at the angle provided", transSech, functionVariant},
+		"coth":    {[]string{"theta"}, "calculate the value of hyperbolic tangent's reciprocal at the angle provided", transCoth, functionVariant},
+		"arcsin":  {[]string{"theta"}, "calculate the value of the inverse of sine at the angle provided", transArcsin, functionVariant},
+		"arccos":  {[]string{"theta"}, "calculate the value of the inverse of cosine at the angle provided", transArccos, functionVariant},
+		"arctan":  {[]string{"theta"}, "calculate the value of the inverse of tangent at the angle provided", transArctan, functionVariant},
+		"arccsc":  {[]string{"theta"}, "calculate the value of the inverse of sine's reciprocal at the angle provided", transArccsc, functionVariant},
+		"arcsec":  {[]string{"theta"}, "calculate the value of the inverse of cosine's reciprocal at the angle provided", transArcsec, functionVariant},
+		"arccot":  {[]string{"theta"}, "calculate the value of the inverse of tangent's reciprocal at the angle provided", transArccot, functionVariant},
+		"arcsinh": {[]string{"theta"}, "calculate the value of the inverse of hyperbolic sine at the angle provided", transArcsinh, functionVariant},
+		"arccosh": {[]string{"theta"}, "calculate the value of the inverse of hyperbolic cosine at the angle provided", transArccosh, functionVariant},
+		"arctanh": {[]string{"theta"}, "calculate the value of the inverse of hyperbolic tangent at the angle provided", transArctanh, functionVariant},
+		"arccsch": {[]string{"theta"}, "calculate the value of the inverse of hyperbolic sine's reciprocal at the angle provided", transArccsch, functionVariant},
+		"arcsech": {[]string{"theta"}, "calculate the value of the inverse of hyperbolic cosine's reciprocal at the angle provided", transArcsech, functionVariant},
+		"arccoth": {[]string{"theta"}, "calculate the value of the inverse of hyperbolic tangent's reciprocal at the angle provided", transArccoth, functionVariant},
+		"log":     {[]string{"x", "b"}, "calculate the logarithm of x with base b", transLog, functionVariant},
+		"lg":      {[]string{"x"}, "calculate the common logarithm (base 10) of x", transLg, functionVariant},
+		"ln":      {[]string{"x"}, "calculate the natural logarithm (base e) of x", transLn, functionVariant},
+		"exp":     {[]string{"x"}, "calculate e to the power of x", transExp, functionVariant},
 		// determinant when?
-		"sqrt": {1, transSqrt, functionVariant},
-		"pi":   {0, transPi, constantVariant},
-		"e":    {0, transE, constantVariant},
-		"rad":  {1, transRad, functionVariant},
-		"deg":  {1, transDeg, functionVariant},
-		"abs":  {1, transAbs, functionVariant},
-		"inc":  {1, transInc, functionVariant},
-		"hirt": {2, transHirt, functionVariant},
-		"read": {0, transRead, functionVariant},
-		"exit": {0, transExit, functionVariant},
+		"sqrt": {[]string{"x"}, "calculate the square root of x", transSqrt, functionVariant},
+		"pi":   {[]string{}, "the ratio of a circle's circumference to its diameter", transPi, constantVariant},
+		"e":    {[]string{}, "the natural number", transE, constantVariant},
+		"rad":  {[]string{"degrees"}, "convert radians to degrees", transRad, functionVariant},
+		"deg":  {[]string{"radians"}, "convert degrees to radians", transDeg, functionVariant},
+		"abs":  {[]string{"x"}, "calculate the absolute value of x", transAbs, functionVariant},
+		"inc":  {[]string{"file"}, "interpret the file provided, execute it, and provide its functions and constants", transInc, functionVariant},
+		"hirt": {[]string{"x", "n"}, "calculate the higher-order root n of x", transHirt, functionVariant},
+		"read": {[]string{}, "read input from the command line", transRead, functionVariant},
+		"exit": {[]string{}, "exit the program", transExit, functionVariant},
 	}
 	tokenizerRegExp, _ = regexp.Compile("radians|degrees|sinh|cosh|tanh|csch|sech|coth|sin|cos|tan|csc|sec|cot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|arcsin|arccos|arctan|arccsc|arcsec|arccot|log|lg|ln|exp|det|sqrt|pi|exit|e|rad|deg|abs|inc|hirt|read|<=|>=|<|>|=|\\\"[^\\\"\\\\\\\\]*(\\\\\\\\.[^\\\"\\\\\\\\]*)*\\\"|[-.0-9]+|\\S")
 	debug("using tokenizer regex:", tokenizerRegExp.String())
@@ -331,7 +332,12 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 		if isNumeric(*tp) {
 			output.push(tp)
 		} else if fSymbolExists || (transExists && trans.variant == functionVariant) {
-			ops.push(tp)
+			if i+1 >= len(tokens) || tokens[i+1] != "(" {
+				output.push(tp)
+			} else {
+				call := *tp + "("
+				ops.push(&call)
+			}
 		} else if isOperator(*tp) {
 			for !ops.empty() && *(ops.peek()) != "(" && (operators[*(ops.peek())] > operators[*tp] || operators[*(ops.peek())] == operators[*tp] && *tp != "^") {
 				output.push(ops.pop())
@@ -378,16 +384,24 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 			cSymbol.data = Deque[string]{}
 			cSymbol.data.push(&value)
 		} else {
-			result := atof(value)
-			if result >= -0.00001 && result <= 0.00001 {
-				result = 0
-			}
-			full = ftoa(result)
-			if !no && print {
-				if !math.IsNaN(result) && !math.IsInf(result, 0) {
-					fmt.Println(result)
-				} else {
-					fmt.Println("undefined")
+			fSymbol, fSymbolExists := symbols[value]
+			trans, transExists := transcendentals[value]
+			if fSymbolExists {
+				fmt.Println(stringifyFunction(fSymbol))
+			} else if transExists {
+				fmt.Println(stringifyTransFunction(value, &trans))
+			} else {
+				result := atof(value)
+				if result >= -0.00001 && result <= 0.00001 {
+					result = 0
+				}
+				full = ftoa(result)
+				if !no && print {
+					if !math.IsNaN(result) && !math.IsInf(result, 0) {
+						fmt.Println(result)
+					} else {
+						fmt.Println("undefined")
+					}
 				}
 			}
 		}
@@ -425,66 +439,80 @@ func resolveExpression(data *Deque[string], function *Symbol, operations *Stack[
 	localOperations := Stack[string]{}
 	noOutput := false
 	for current := data.shift(); current != nil; current = data.shift() {
-		symbol, fSymbolExists := symbols[*current]
+		fCall := strings.Contains(*current, "(")
+		token := *current
+		if fCall {
+			location := strings.Index(*current, "(")
+			token = token[0:location]
+		}
+		symbol, fSymbolExists := symbols[token]
 		cSymbolExists := fSymbolExists
 		if fSymbolExists && symbol.variant != functionVariant {
 			fSymbolExists = false
 		}
-		value, valueExists := valueTable[*current]
-		trans, transExists := transcendentals[*current]
+		value, valueExists := valueTable[token]
+		trans, transExists := transcendentals[token]
 		if fSymbolExists {
-			data := symbol.data
-			result, nol, ok := resolveExpression(&data, symbol, &localOperations, line)
-			if !ok {
-				return "", false, false
-			}
-			if nol {
-				noOutput = true
-			}
-			localOperations.push(&result)
-		} else if transExists {
-			args := make([]string, 0, trans.argCount)
-			for i := 0; i < trans.argCount; i++ {
-				arg := localOperations.pop()
-				if arg == nil {
-					errLine("function "+*current+" expects "+strconv.Itoa(trans.argCount)+" argument(s), got "+strconv.Itoa(i), line)
+			if fCall {
+				data := symbol.data
+				result, nol, ok := resolveExpression(&data, symbol, &localOperations, line)
+				if !ok {
 					return "", false, false
 				}
-				args = append(args, *arg)
+				if nol {
+					noOutput = true
+				}
+				localOperations.push(&result)
+			} else {
+				localOperations.push(&token)
 			}
-			result, ok := trans.operation(args)
-			if !ok {
-				return "", false, false
+		} else if transExists {
+			if fCall || trans.variant != functionVariant {
+				args := make([]string, 0, len(trans.arguments))
+				for i := 0; i < len(trans.arguments); i++ {
+					arg := localOperations.pop()
+					if arg == nil {
+						errLine("function "+token+" expects "+strconv.Itoa(len(trans.arguments))+" argument(s), got "+strconv.Itoa(i), line)
+						return "", false, false
+					}
+					args = append(args, *arg)
+				}
+				result, ok := trans.operation(args)
+				if !ok {
+					return "", false, false
+				}
+				if result == "" {
+					result = "0"
+					noOutput = true
+				}
+				localOperations.push(&result)
+			} else {
+				localOperations.push(&token)
 			}
-			if result == "" {
-				result = "0"
-				noOutput = true
-			}
-			localOperations.push(&result)
 		} else if valueExists {
 			localOperations.push(&value)
 		} else if cSymbolExists {
 			localOperations.push(symbol.data.front())
-		} else if isNumeric(*current) {
-			localOperations.push(current)
-		} else if isStringLiteral(*current) {
-			value := unwrapStringLiteral(*current)
+		} else if isNumeric(token) {
+			localOperations.push(&token)
+		} else if isStringLiteral(token) {
+			value := unwrapStringLiteral(token)
 			localOperations.push(&value)
-		} else if isOperator(*current) {
+		} else if isOperator(token) {
 			rhs := localOperations.pop()
 			lhs := localOperations.pop()
 			if lhs == nil || rhs == nil {
-				errLine("'"+*current+"' operator expects 2 operands", line)
+				errLine("'"+token+"' operator expects 2 operands", line)
 				return "", false, false
 			}
 			lhsv, lhsve := strconv.ParseFloat(*lhs, 64)
 			rhsv, rhsve := strconv.ParseFloat(*rhs, 64)
 			if lhsve != nil || rhsve != nil {
-				errLine("'"+*current+"' operator expects 2 operands", line)
+				errLine("'"+token+"' operator expects 2 operands", line)
 				return "", false, false
 			}
 			value := ""
-			switch *current {
+			switch token {
 			case "|":
 				value = btois(itob(lhsv) || itob(rhsv))
 			case "&":
@@ -511,13 +539,13 @@ func resolveExpression(data *Deque[string], function *Symbol, operations *Stack[
 				value = ftoa(math.Pow(lhsv, rhsv))
 			default:
 				{
-					errLine("'"+*current+"' operator has not been implemented yet", line)
+					errLine("'"+token+"' operator has not been implemented yet", line)
 					return "", false, false
 				}
 			}
 			localOperations.push(&value)
 		} else {
-			errLine("unknown symbol encountered: "+*current, line)
+			errLine("unknown symbol encountered: "+token, line)
 			return "", false, false
 		}
 	}

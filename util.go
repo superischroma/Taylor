@@ -1,6 +1,9 @@
 package main
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 func isNumeric(str string) bool {
 	if str == "-" {
@@ -69,4 +72,20 @@ func btois(b bool) string {
 
 func itob(f float64) bool {
 	return f != 0
+}
+
+func stringifyFunction(fSymbol *Symbol) string {
+	str := "[U] " + fSymbol.name + "("
+	for i, parameter := range fSymbol.children {
+		if i != 0 {
+			str += ", "
+		}
+		str += parameter.name
+	}
+	str += ")"
+	return str
+}
+
+func stringifyTransFunction(name string, transcendental *Transcendental) string {
+	return "[T] " + name + "(" + strings.Join(transcendental.arguments, ", ") + "): " + transcendental.description
 }

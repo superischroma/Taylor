@@ -8,9 +8,10 @@ import (
 )
 
 type Transcendental struct {
-	argCount  int
-	operation func([]string) (string, bool)
-	variant   SymbolVariant
+	arguments   []string
+	description string
+	operation   func([]string) (string, bool)
+	variant     SymbolVariant
 }
 
 const (
