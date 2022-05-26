@@ -34,6 +34,7 @@ var operators = map[string]int{
 	"/":  4,
 	"^":  5,
 	"'":  6,
+	"[":  7,
 }
 
 var tokenizerRegExp *regexp.Regexp
@@ -244,7 +245,7 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 		if isOperator(t1) || isOperator(t2) {
 			continue
 		}
-		if t1 == "(" || t2 == ")" || t1 == "," || t2 == "," {
+		if t1 == "(" || t2 == ")" || t1 == "[" || t2 == "]" || t1 == "{" || t2 == "}" || t1 == "," || t2 == "," {
 			continue
 		}
 		_, st1e := symbols[t1]
@@ -255,6 +256,39 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 		tokens[i+1] = "*"
 		i++
 	}
+	for i := 0; i < len(tokens); i++ {
+		token := tokens[i]
+		if token == "{" {
+			start := i
+			for ; i < len(tokens) && tokens[i] != "}"; i++ {
+
+			}
+			if i >= len(tokens) {
+				errLine("expected right brace", line)
+				return false, ""
+			}
+			subscript := strings.Join(tokens[start:i+1], "")
+			tokens = append(tokens[:start+1], tokens[i+1:]...)
+			tokens[start] = subscript
+			continue
+		}
+		if token == "[" {
+			start := i
+			for ; i < len(tokens) && tokens[i] != "]"; i++ {
+
+			}
+			if i >= len(tokens) {
+				errLine("expected right bracket", line)
+				return false, ""
+			}
+			end := i
+			i = start
+			tokens[end] = ")"
+			tokens = append(tokens[:i+1], tokens[i:]...)
+			tokens[i+1] = "("
+		}
+	}
+	debug("in between:", tokens)
 	result := outputLineResult
 	var fSymbol *Symbol = nil
 	var cSymbol *Symbol = nil
@@ -402,6 +436,7 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 					} else {
 						fmt.Println("undefined")
 					}
+					debug("true value:", value)
 				}
 			}
 		}
@@ -498,6 +533,20 @@ func resolveExpression(data *Deque[string], function *Symbol, operations *Stack[
 		} else if isStringLiteral(token) {
 			value := unwrapStringLiteral(token)
 			localOperations.push(&value)
+		} else if strings.HasPrefix(token, "{") {
+			debug("prehelp:", token)
+			elements := strings.Split(token[1:len(token)-1], ",")
+			debug("preposthelp:", elements, token[1:len(token)-1])
+			for i, element := range elements {
+				debug("help:", element)
+				ok, value := interpretLine(element, line, false)
+				if !ok {
+					return "", false, false
+				}
+				elements[i] = value
+			}
+			joined := "{" + strings.Join(elements, ", ") + "}"
+			localOperations.push(&joined)
 		} else if isOperator(token) {
 			rhs := localOperations.pop()
 			lhs := localOperations.pop()
@@ -507,7 +556,7 @@ func resolveExpression(data *Deque[string], function *Symbol, operations *Stack[
 			}
 			lhsv, lhsve := strconv.ParseFloat(*lhs, 64)
 			rhsv, rhsve := strconv.ParseFloat(*rhs, 64)
-			if lhsve != nil || rhsve != nil {
+			if lhsve != nil && token != "[" || rhsve != nil {
 				errLine("'"+token+"' operator expects 2 operands", line)
 				return "", false, false
 			}
@@ -537,6 +586,24 @@ func resolveExpression(data *Deque[string], function *Symbol, operations *Stack[
 				value = ftoa(lhsv / rhsv)
 			case "^":
 				value = ftoa(math.Pow(lhsv, rhsv))
+			case "[":
+				{
+					if !strings.HasPrefix(*lhs, "{") {
+						errLine("subscript operator may only be used on arrays and matrices", line)
+						return "", false, false
+					}
+					if rhsv < 0.0 || rhsv-float64(int(rhsv)) != 0 {
+						errLine("subscript operator index must be a positive integer", line)
+						return "", false, false
+					}
+					rhsi := int(rhsv)
+					elements := strings.Split((*lhs)[1:len(*lhs)-1], ",")
+					if rhsi < 0 || rhsi >= len(elements) {
+						errLine("attempt to reach outside of the bounds of an array or matrix (length: "+strconv.Itoa(len(elements))+", attempted: "+strconv.Itoa(rhsi)+")", line)
+						return "", false, false
+					}
+					value = strings.TrimSpace(elements[rhsi])
+				}
 			default:
 				{
 					errLine("'"+token+"' operator has not been implemented yet", line)
