@@ -86,6 +86,28 @@ func (deque *Deque[T]) back() *T {
 	return nil
 }
 
+func (deque *Deque[T]) at(distance int) *T {
+	if distance > deque.size/2 {
+		distance = deque.size - 1 - distance
+		current := deque.tail
+		for travelled := 0; current != nil && travelled != distance; current, travelled = current.prev, travelled+1 {
+
+		}
+		if current == nil {
+			return nil
+		}
+		return current.value
+	}
+	current := deque.head
+	for travelled := 0; current != nil && travelled != distance; current, travelled = current.next, travelled+1 {
+
+	}
+	if current == nil {
+		return nil
+	}
+	return current.value
+}
+
 func (deque *Deque[T]) length() int {
 	return deque.size
 }

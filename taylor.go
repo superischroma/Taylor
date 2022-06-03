@@ -93,7 +93,7 @@ func main() {
 		"read": {[]string{}, "read input from the command line", transRead, functionVariant},
 		"exit": {[]string{}, "exit the program", transExit, functionVariant},
 	}
-	tokenizerRegExp, _ = regexp.Compile("radians|degrees|sinh|cosh|tanh|csch|sech|coth|sin|cos|tan|csc|sec|cot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|arcsin|arccos|arctan|arccsc|arcsec|arccot|log|lg|ln|exp|det|sqrt|pi|exit|e|rad|deg|abs|inc|hirt|read|<=|>=|<|>|=|\\\"[^\\\"\\\\\\\\]*(\\\\\\\\.[^\\\"\\\\\\\\]*)*\\\"|[-.0-9]+|\\S")
+	tokenizerRegExp, _ = regexp.Compile("radians|degrees|sinh|cosh|tanh|csch|sech|coth|sin|cos|tan|csc|sec|cot|arcsinh|arccosh|arctanh|arccsch|arcsech|arccoth|arcsin|arccos|arctan|arccsc|arcsec|arccot|log|lg|ln|exp|det|sqrt|pi|exit|e|rad|deg|abs|inc|hirt|read|<=|>=|<|>|=|-|\\\"[^\\\"\\\\\\\\]*(\\\\\\\\.[^\\\"\\\\\\\\]*)*\\\"|[.0-9]+|\\S")
 	debug("using tokenizer regex:", tokenizerRegExp.String())
 	if len(files) == 0 {
 		symbols = make(map[string]*Symbol)
@@ -242,6 +242,15 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 	tokens := tokenizerRegExp.FindAllString(data, -1)
 	for i := 0; i < len(tokens)-1; i++ { // we love implicit multiplication!
 		t1, t2 := tokens[i], tokens[i+1]
+		if t1 == "-" && (i-1 < 0 || isOperator(tokens[i-1]) || tokens[i-1] == "," || tokens[i-1] == "(") && isNumeric(t2) {
+			lateSegment := []string{}
+			if i+2 < len(tokens) {
+				lateSegment = tokens[i+2:]
+			}
+			tokens = append(tokens[:i+1], lateSegment...)
+			tokens[i] = t1 + t2
+			continue
+		}
 		if isOperator(t1) || isOperator(t2) {
 			continue
 		}
@@ -426,8 +435,20 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 				fmt.Println(stringifyTransFunction(value, &trans))
 			} else {
 				result := atof(value)
-				if result >= -0.00001 && result <= 0.00001 {
-					result = 0
+				extension := math.Abs(result) - math.Floor(math.Abs(result))
+				if extension <= 0.00001 {
+					if result < 0 {
+						result = math.Ceil(result)
+					} else {
+						result = math.Floor(result)
+					}
+				}
+				if extension >= 0.99999 {
+					if result < 0 {
+						result = math.Floor(result)
+					} else {
+						result = math.Ceil(result)
+					}
 				}
 				full = ftoa(result)
 				if !no && print {
@@ -550,6 +571,16 @@ func resolveExpression(data *Deque[string], function *Symbol, operations *Stack[
 		} else if isOperator(token) {
 			rhs := localOperations.pop()
 			lhs := localOperations.pop()
+			if token == "-" && (lhs == nil || !isNumeric(*lhs)) { // 1 arg negation
+				rhsv, rhsve := strconv.ParseFloat(*rhs, 64)
+				if rhsve != nil {
+					errLine("'"+token+"' operator expects 1 or 2 operands", line)
+					return "", false, false
+				}
+				value := ftoa(-rhsv)
+				localOperations.push(&value)
+				continue
+			}
 			if lhs == nil || rhs == nil {
 				errLine("'"+token+"' operator expects 2 operands", line)
 				return "", false, false
