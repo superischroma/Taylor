@@ -1,0 +1,23 @@
+// the Taylor language provides some useful functions and constants with itself. here are a few:
+// pi - a constant with the value of 3.14159...
+// sin - the sine function that takes one argument (the angle in radians by default)
+sin(pi/2) // produces: 1
+// it also provides inverse and hyperbolic variants of the default trig functions
+arccsch(pi) // like this crazy inverse hyperbolic cosecant function, produces: 0.3131...
+// but you also get more expectable ones, like logarithm and exponential functions
+// also, the natural e constant of 2.718...
+ln(e^2) // natural logarithm (base e), produces: 2
+exp(ln(5)) // inverse function undo, produces: 5
+ln(0) // no complex logarithms unfortunately, produces: undefined
+log(8, 2) // specific base logarithm function (with base as second input field), produces: 3
+lg(100) // common logarithm (base 10), produces: 2
+sqrt(25) // square root function, produces: 5
+hirt(64, 3) // higher order root, with second input field being the order, produces: 4
+rad(90) // convert a degree angle to radians, produces: pi/2 = 1.5707...
+deg(3pi/2) // convert a radian angle to degrees, produces: 270
+// you may also print out the details of a transcendental function by writing its name:
+ln // produces: [T] ln(x): calculate the natural logarithm (base e) of x
+// or a user-defined function (less helpful):
+f(x) = x^2
+f // produces: [U] f(x)
+exit() // closes the program, no result

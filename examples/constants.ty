@@ -1,0 +1,7 @@
+y = 5 // define a few constants
+x = 3 //
+g(x) = yx^3 // do some implicit multiplication with a cubic power function and the y constant
+// ^ this function defines a local value x, which will overshadow the constant x
+g(2) // produces: 40
+h(a) = axy // simple multiplication of all constants and the function input
+h(10) // produces: 150

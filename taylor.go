@@ -397,7 +397,7 @@ func interpretLine(data string, line int, print bool) (bool, string) {
 				return false, ""
 			}
 			ops.pop()
-			if !ops.empty() && isAlpha(*(ops.peek())) {
+			if !ops.empty() && len(*(ops.peek())) >= 2 && (*(ops.peek()))[len(*(ops.peek()))-1] == '(' {
 				output.push(ops.pop())
 			}
 		} else if *tp != "," {

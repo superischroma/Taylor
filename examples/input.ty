@@ -1,0 +1,4 @@
+// you can receive user input from a Taylor file using the read transcendental function
+'calculate x^2 when x = '
+x = read() // this will read an expression from console, allows constants defined in the program
+x^2 // print the result

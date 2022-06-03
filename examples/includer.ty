@@ -1,0 +1,4 @@
+// you may include other Taylor files using the inc transcendental function
+// beware though, this will effectively RUN any lines of code in the file you're including
+inc("examples/included.ty")
+f(pi) // external function call, produces: 0

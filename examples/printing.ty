@@ -1,0 +1,8 @@
+// printing is very simple in the Taylor language
+// to write a string with a newline, surround text with double quotes (")
+"this is a newline-ended string!"
+// to write a string with no newline, surround text with single quotes (')
+'this will not print a newline. '
+// to show the result of a math expression, simply write it on a line
+'result of 5 * 2: '
+5 * 2 // produces: 10

@@ -91,15 +91,15 @@ func transArctan(values []string) (string, bool) {
 }
 
 func transArccsc(values []string) (string, bool) {
-	return ftoa(1 / math.Asin(radiansCheck(atof(values[0])))), true
+	return ftoa(math.Asin(1 / radiansCheck(atof(values[0])))), true
 }
 
 func transArcsec(values []string) (string, bool) {
-	return ftoa(1 / math.Acos(radiansCheck(atof(values[0])))), true
+	return ftoa(math.Acos(1 / radiansCheck(atof(values[0])))), true
 }
 
 func transArccot(values []string) (string, bool) {
-	return ftoa(1 / math.Atan(radiansCheck(atof(values[0])))), true
+	return ftoa(math.Atan(1 / radiansCheck(atof(values[0])))), true
 }
 
 func transArcsinh(values []string) (string, bool) {
@@ -115,15 +115,15 @@ func transArctanh(values []string) (string, bool) {
 }
 
 func transArccsch(values []string) (string, bool) {
-	return ftoa(1 / math.Asinh(radiansCheck(atof(values[0])))), true
+	return ftoa(math.Asinh(1 / radiansCheck(atof(values[0])))), true
 }
 
 func transArcsech(values []string) (string, bool) {
-	return ftoa(1 / math.Acosh(radiansCheck(atof(values[0])))), true
+	return ftoa(math.Acosh(1 / radiansCheck(atof(values[0])))), true
 }
 
 func transArccoth(values []string) (string, bool) {
-	return ftoa(1 / math.Atanh(radiansCheck(atof(values[0])))), true
+	return ftoa(math.Atanh(1 / radiansCheck(atof(values[0])))), true
 }
 
 func transLog(values []string) (string, bool) {

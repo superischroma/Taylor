@@ -1,0 +1,2 @@
+// this file defines a function to be included in another
+f(x) = sin(x)/x

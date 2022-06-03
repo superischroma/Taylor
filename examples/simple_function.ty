@@ -1,0 +1,3 @@
+// this program uses a 2nd degree power function to produce a result of 5
+f(x) = x^2 // this defines the function
+f(5) // produces: 25
